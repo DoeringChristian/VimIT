@@ -50,7 +50,7 @@ function! s:VIMIT_input(name)
         let in = input("input:")
         let in_split = split(in, ';')
         if empty(in)
-            let in_split = split(s:vimit_var_expr[var_name])
+            let in_split = split(s:vimit_var_expr[var_name], ';')
             for expr in in_split
                 let n = s:vimit_var_state[var_name]
                 try
