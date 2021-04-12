@@ -51,7 +51,9 @@ endfunction
 function! s:VIMIT_input(name)
     let var_name = a:name
     if !has_key(s:vimit_var_set, var_name) || s:vimit_var_set[var_name] == 0
+        call inputsave()
         let in = input("input:")
+        call inputrestore()
         let in_split = split(in, ';')
         if empty(in)
             let in_split = split(s:vimit_var_expr[var_name], ';')
@@ -86,8 +88,10 @@ function! s:VIMIT_parse(string)
     let parse_state = "text"
     let var_name = ""
     let var_format = ""
-    for c in str2list(a:string)
-        let char = nr2char(c)
+    let n = 0
+    while n < strlen(a:string)
+        let char = a:string[n]
+        let c = char2nr(char)
         if parse_state == "text" 
             if char == '$'
                 let parse_state = "var"
@@ -154,7 +158,8 @@ function! s:VIMIT_parse(string)
         else
 
         endif
-    endfor
+        let n += 1
+    endwhile
     for key in keys(s:vimit_var_set)
         let s:vimit_var_set[key] = 0
     endfor
