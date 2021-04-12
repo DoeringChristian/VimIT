@@ -170,7 +170,6 @@ endfunction
 
 "execute from register
 function! VIMIT_reg()
-    echo "Register to use:"
     let c = nr2char(getchar())
     call s:VIMIT_parse(getreg(c))
 endfunction
