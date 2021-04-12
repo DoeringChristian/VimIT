@@ -52,7 +52,7 @@ function! s:VIMIT_input(name)
     let var_name = a:name
     if !has_key(s:vimit_var_set, var_name) || s:vimit_var_set[var_name] == 0
         call inputsave()
-        let in = input("input:")
+        let in = input(var_name . ":")
         call inputrestore()
         let in_split = split(in, ';')
         if empty(in)
@@ -106,7 +106,7 @@ function! s:VIMIT_parse(string)
                 call s:VIMIT_insert(char)
                 let parse_state = "text"
             elseif (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9'))
-                let var_name = ""
+                let var_name = char
                 let parse_state = "var_name_nb"
             else
                 let parse_state = "error"
@@ -136,7 +136,7 @@ function! s:VIMIT_parse(string)
         elseif parse_state == "var_name_nb"
             if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9'))
                 let var_name .= char
-                let parse_state = "var_name"
+                let parse_state = "var_name_nb"
             elseif char == '%'
                 let var_format = '%'
                 let parse_state = "format_nb"
