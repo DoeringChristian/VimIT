@@ -29,7 +29,11 @@ let s:vimit_var_format ={}
 
 "prints the text normally
 function! s:VIMIT_insert(text)
-    call execute("normal! a" . a:text)
+    if type(a:text) != v:t_string
+        call execute("normal! a" . string(a:text))
+    else
+        call execute("normal! a" . a:text)
+    endif
 endfunction
 
 "prints the text with format
