@@ -52,11 +52,11 @@ function! s:VIMIT_eval(expr, var_name)
 endfunction
 
 "get user input and evaluate expressions
-function! s:VIMIT_input(name)
+function! s:VIMIT_input(name, format)
     let var_name = a:name
     if !has_key(s:vimit_var_set, var_name) || s:vimit_var_set[var_name] == 0
         redraw
-        let in = input(s:vimit_printed . "$(" . var_name . ") :")
+        let in = input("var " . var_name . a:format . ":")
         let in_split = split(in, ';')
         if empty(in)
             let in_split = split(s:vimit_var_expr[var_name], ';')
@@ -123,7 +123,7 @@ function! s:VIMIT_parse(string)
                 let var_format = '%'
                 let parse_state = "format"
             elseif char == ')'
-                call s:VIMIT_input(var_name)
+                call s:VIMIT_input(var_name, "")
                 let parse_state = "text"
             else
                 let parse_state = "error"
@@ -134,7 +134,7 @@ function! s:VIMIT_parse(string)
                 let parse_state = "format"
             else
                 let s:vimit_var_format[var_name] = var_format
-                call s:VIMIT_input(var_name)
+                call s:VIMIT_input(var_name, var_format)
                 let parse_state = "text"
             endif
         elseif parse_state == "var_name_nb"
@@ -145,7 +145,7 @@ function! s:VIMIT_parse(string)
                 let var_format = '%'
                 let parse_state = "format_nb"
             else
-                call s:VIMIT_input(var_name)
+                call s:VIMIT_input(var_name, "")
                 call s:VIMIT_insert(char)
                 let parse_state = "text"
             endif
@@ -155,7 +155,7 @@ function! s:VIMIT_parse(string)
                 let parse_state = "format_nb"
             else
                 let s:vimit_var_format[var_name] = var_format
-                call s:VIMIT_input(var_name)
+                call s:VIMIT_input(var_name, var_format)
                 call s:VIMIT_insert(char)
                 let parse_state = "text"
             endif
