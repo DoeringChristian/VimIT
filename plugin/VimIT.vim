@@ -25,20 +25,24 @@ let s:vimit_record_mode = 0
 let s:vimit_var_set = {}
 let s:vimit_var_state = {}
 let s:vimit_var_expr = {}
-let s:vimit_var_format ={}
+let s:vimit_var_format = {}
+let s:vimit_printed = ""
 
 "prints the text normally
 function! s:VIMIT_insert(text)
     if type(a:text) != v:t_string
         call execute("normal! a" . string(a:text))
+        let s:vimit_printed .= string(a:text)
     else
         call execute("normal! a" . a:text)
+        let s:vimit_printed .= a:text
     endif
 endfunction
 
 "prints the text with format
 function! s:VIMIT_printf(format, text)
-    call execute("normal! a" . printf(a:format, a:text))
+    call execute("normal! a" . printf(a:format, a:text)) 
+    let s:vimit_printed .= printf(a:format, a:text)
 endfunction
 
 "wip
@@ -51,9 +55,8 @@ endfunction
 function! s:VIMIT_input(name)
     let var_name = a:name
     if !has_key(s:vimit_var_set, var_name) || s:vimit_var_set[var_name] == 0
-        call inputsave()
-        let in = input(var_name . ":")
-        call inputrestore()
+        redraw
+        let in = input(s:vimit_printed . "$(" . var_name . ") :")
         let in_split = split(in, ';')
         if empty(in)
             let in_split = split(s:vimit_var_expr[var_name], ';')
@@ -88,6 +91,7 @@ function! s:VIMIT_parse(string)
     let parse_state = "text"
     let var_name = ""
     let var_format = ""
+    let s:vimit_printed = ""
     let n = 0
     while n < strlen(a:string)
         let char = a:string[n]
@@ -179,7 +183,9 @@ endfunction
 
 "execute from register
 function! VIMIT_reg()
+    echo "Register to use:"
     let c = nr2char(getchar())
+    redraw
     call s:VIMIT_parse(getreg(c))
 endfunction
 
