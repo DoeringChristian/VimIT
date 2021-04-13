@@ -3,8 +3,8 @@
 ## Introduction
 
 VimIT enables you to write repetitive structures more efficiently.
-Programming for embedded systems offten requires writing similar 
-lines of code with minor difrences for example when defining GPIO-registers
+Programming for embedded systems often requires writing similar 
+lines of code with minor differences for example when defining GPIO-registers
 ```c
 #define GPIOA *((uint32_t *)0x40014000)
 #define GPIOB *((uint32_t *)0x40014004)
@@ -13,13 +13,13 @@ lines of code with minor difrences for example when defining GPIO-registers
 Most of the time these values are given by a datasheet and only have to be implemented.
 This takes far to long by hand. There are snippet plugins for Vim such as [ultisnap](https://github.com/sirver/UltiSnips)
 or [vim-snippets](https://github.com/honza/vim-snippets) but these are made to simplify structures
-used in a programming language as a whole. VimIT made to be a simpler and more light weight
-solution where you easily write your templates on the fly. 
+used in a programming language as a whole. VimIT is made to be a simpler and more light weight
+solution where you are easily able write your templates on the fly. 
 
 ## Writing a Template:
 
 After installing it ([guide](#installation)) you can use VimIT as it is.
-To create a template write it anny where you want or just coppy one from the internet.
+To create a template write it any where you want or just copy one from the internet.
 The structure of a template can as follows:
 ```c
 #define $regname *((uint32_t *)0x$(regaddr%08x))
@@ -33,10 +33,10 @@ c-like printf functions as used by Vim.
 
 Templates can be printed into your programm by pressing "t" followed by the register in which
 the template is located. If you have written the template in the same document you have to
-coppy it into a register. VimIT will now parse the template and the first time it hits an unencountered
+copy it into a register. VimIT will now parse the template and the first time it encounters an undefined
 variable it will ask you to enter a list of expressions for this variable. These expressions 
 are delimited with a semicolon ";" (e.g. 10;n+2 "GPIOA" GPIOA). The variable will be set to the first expression once you
-hit enter. Anny subsequent expressions are saved and will be applied once the template is printed
+hit enter. Any subsequent expressions are saved and will be applied once the template is printed
 again. In the expressions "n" refers to the last instance of the variable. VimIT tries to evaluate
 the expressions as mathematical ones if it fails it will evaluate it as a string, therefore you can
 enter alphanumerical strings without using quotation marks.
