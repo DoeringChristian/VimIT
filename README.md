@@ -41,7 +41,7 @@ again. In the expressions "n" refers to the last instance of the variable. VimIT
 the expressions as mathematical ones if it fails it will evaluate it as a string, therefore you can
 enter alphanumerical strings without using quotation marks.
 
-## Installation {#installation}
+## Installation 
     1. using vim-plug:
         put this in your .vimrc file: ```Plug 'DoeringChristian/VimIT'```
     2. manually:
