@@ -43,7 +43,7 @@ enter alphanumerical strings without using quotation marks.
 
 ## Installation 
     1. using vim-plug:
-        put this in your .vimrc file: ```Plug 'DoeringChristian/VimIT'```
+        put this in your .vimrc file: Plug 'DoeringChristian/VimIT'
     2. manually:
         put the plugins folder into your .vim folder.
 
