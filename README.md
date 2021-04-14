@@ -31,7 +31,7 @@ c-like printf functions as used by Vim.
 
 ## Printing a Template:
 
-Templates can be printed into your programm by pressing "t" followed by the register in which
+Templates can be printed into your programm by pressing "<leader>t" followed by the register in which
 the template is located. If you have written the template in the same document you have to
 copy it into a register. VimIT will now parse the template and the first time it encounters an undefined
 variable it will ask you to enter a list of expressions for this variable. These expressions 
