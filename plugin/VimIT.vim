@@ -193,7 +193,7 @@ endfunction
 
 "Public
 if !hasmapto("VIMIT_reg()")
-    nnoremap <unique> t :call VIMIT_reg()<CR>
+    nnoremap <unique> <leader>t :call VIMIT_reg()<CR>
 endif
 
 
