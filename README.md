@@ -12,7 +12,7 @@ lines of code with minor differences for example when defining GPIO-registers
 ```
 Most of the time these values are given by a datasheet and only have to be implemented.
 This takes far to long by hand. There are snippet plugins for Vim such as [ultisnap](https://github.com/sirver/UltiSnips)
-or [vim-snippets](https://github.com/honza/vim-snippets) but these are made to simplify structures
+or [vim-snipmate](https://github.com/garbas/vim-snipmate) but these are made to simplify structures
 used in a programming language as a whole. VimIT is made to be a simpler and more light weight
 solution where you are easily able write your templates on the fly. 
 
