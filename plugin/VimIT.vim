@@ -109,14 +109,14 @@ function! s:VIMIT_parse(string)
             elseif char == '$'
                 call s:VIMIT_insert(char)
                 let parse_state = "text"
-            elseif (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9'))
+            elseif (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9') || c == char2nr('_'))
                 let var_name = char
                 let parse_state = "var_name_nb"
             else
                 let parse_state = "error"
             endif
         elseif parse_state == "var_name" 
-            if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9'))
+            if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9') || c == char2nr('_'))
                 let var_name .= char
                 let parse_state = "var_name"
             elseif char == '%'
@@ -138,7 +138,7 @@ function! s:VIMIT_parse(string)
                 let parse_state = "text"
             endif
         elseif parse_state == "var_name_nb"
-            if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9'))
+            if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9') || c == char2nr('_'))
                 let var_name .= char
                 let parse_state = "var_name_nb"
             elseif char == '%'
