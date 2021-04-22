@@ -55,8 +55,13 @@ endfunction
 function! s:VIMIT_input(name, format)
     let var_name = a:name
     if !has_key(s:vimit_var_set, var_name) || s:vimit_var_set[var_name] == 0
-        redraw
+        "add space and remove it to alow display of cursor
+        call execute("normal! a ")
+        let highlight = matchaddpos("Cursor", [[line('.'), col('.')]])
+        call execute("normal! dj")
+        redraw 
         let in = input("var " . var_name . a:format . ":")
+        call matchdelete(highlight)
         let in_split = split(in, ';')
         if empty(in)
             let in_split = split(s:vimit_var_expr[var_name], ';')
