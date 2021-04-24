@@ -27,6 +27,7 @@ let s:vimit_var_state = {}
 let s:vimit_var_expr = {}
 let s:vimit_var_format = {}
 let s:vimit_printed = ""
+let s:vimit_groups = {}
 
 "prints the text normally
 function! s:VIMIT_insert(text)
@@ -86,8 +87,15 @@ function! s:VIMIT_input(name, format)
             let s:vimit_var_expr[var_name] = join(in_split, ';')
         endif
     endif
-    if has_key(s:vimit_var_format, var_name)
-        call s:VIMIT_printf(s:vimit_var_format[var_name], s:vimit_var_state[var_name])
+    if !empty(a:format) && input != 0
+        let format = a:format
+        if format[0] == '^' && format[1] == '%'
+            call s:VIMIT_printf(format[1:strlen(format)-1], toupper(s:vimit_var_state[var_name]))
+        elseif format[0] == '^'
+            call s:VIMIT_insert(toupper(s:vimit_var_state[var_name]))
+        else
+            call s:VIMIT_printf(format, s:vimit_var_state[var_name])
+        endif
     elseif input == 1
         call s:VIMIT_insert(s:vimit_var_state[var_name])
     endif
@@ -134,7 +142,16 @@ function! s:VIMIT_rep_len(string)
     endwhile
     return -1
 endfunction
-        
+
+function! s:VIMIT_backtrack()
+    for j in str2list(s:vimit_printed)
+        if j == '\n'
+            call execute("normal! J")
+        else
+            call execute("normal! x")
+        endif
+    endfor
+endfunction
 
 "parse string
 function! s:VIMIT_parse(string, name)
@@ -177,8 +194,8 @@ function! s:VIMIT_parse(string, name)
             if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9') || c == char2nr('_'))
                 let var_name .= char
                 let parse_state = "var_name"
-            elseif char == '%'
-                let var_format = '%'
+            elseif char == '%' || char == '^'
+                let var_format = "" . char
                 let parse_state = "format"
             elseif char == ')'
                 "global variables start with _
@@ -187,6 +204,7 @@ function! s:VIMIT_parse(string, name)
                     let name = split(a:name, '#')[0] . "#" . var_name[1:strlen(var_name)-1]
                 endif
                 if s:VIMIT_input(name, "") == 0
+                    call s:VIMIT_clear_state(name)
                     return -1
                 endif
                 let parse_state = "text"
@@ -198,12 +216,12 @@ function! s:VIMIT_parse(string, name)
                 let var_format .= char
                 let parse_state = "format"
             else
-                let s:vimit_var_format[var_name] = var_format
                 let name = a:name . "#" . var_name
                 if var_name[0] == '_'
                     let name = split(a:name, '#')[0] . "#" . var_name[1:strlen(var_name)-1]
                 endif
-                if s:VIMIT_input(name, "") == 0
+                if s:VIMIT_input(name, var_format) == 0
+                    call s:VIMIT_clear_states(name)
                     return -1
                 endif
                 let parse_state = "text"
@@ -212,8 +230,8 @@ function! s:VIMIT_parse(string, name)
             if (c >= char2nr('a') && c <= char2nr('z') || c >= char2nr('A') && c <= char2nr('Z') || c >= char2nr('0') && c <= char2nr('9') || c == char2nr('_'))
                 let var_name .= char
                 let parse_state = "var_name_nb"
-            elseif char == '%'
-                let var_format = '%'
+            elseif char == '%' || char == '^'
+                let var_format = "" . char
                 let parse_state = "format_nb"
             else
                 let name = a:name . "#" . var_name
@@ -221,6 +239,7 @@ function! s:VIMIT_parse(string, name)
                     let name = split(a:name, '#')[0] . "#" . var_name[1:strlen(var_name)-1]
                 endif
                 if s:VIMIT_input(name, "") == 0
+                    call s:VIMIT_clear_states(name)
                     return -1
                 endif
                 call s:VIMIT_insert(char)
@@ -231,12 +250,12 @@ function! s:VIMIT_parse(string, name)
                 let var_format .= char
                 let parse_state = "format_nb"
             else
-                let s:vimit_var_format[var_name] = var_format
                 let name = a:name . "#" . var_name
                 if var_name[0] == '_'
                     let name = split(a:name, '#')[0] . "#" . var_name[1:strlen(var_name)-1]
                 endif
-                if s:VIMIT_input(name, "") == 0
+                if s:VIMIT_input(name, var_format) == 0
+                    call s:VIMIT_clear_states(name)
                     return -1
                 endif
                 call s:VIMIT_insert(char)
@@ -254,6 +273,7 @@ function! s:VIMIT_parse(string, name)
         elseif parse_state == "rep_cont"
             let result = s:VIMIT_parse(a:string[n:strlen(a:string)-1], a:name . "#" . rep_name)
             if result >= 0
+                let s:vimit_groups[a:name . "#" . rep_name] = 1
                 if a:string[n+result+1] == '*'
                     let m = 1
                     let name = a:name . "#" . rep_name . m
@@ -261,16 +281,9 @@ function! s:VIMIT_parse(string, name)
                         let m += 1
                         let name = a:name . "#" . rep_name . m
                     endwhile
-                    call s:VIMIT_clear_states(a:name . "#" . rep_name)
                     "backtrack using s:vimit_printed since it is reseted on
                     "start of s:VIMIT_parse
-                    for j in str2list(s:vimit_printed)
-                        if j == '\n'
-                            call execute("normal! J")
-                        else
-                            call execute("normal! x")
-                        endif
-                    endfor
+                    call s:VIMIT_backtrack()
                     let n += 1
                 endif
                 let n += result
@@ -278,25 +291,30 @@ function! s:VIMIT_parse(string, name)
             else
                 call s:VIMIT_clear_states(a:name . "#" . rep_name)
                 "backtrack
-                for j in str2list(s:vimit_printed)
-                    if j == '\n'
-                        call execute("normal! J")
-                    else
-                        call execute("normal! x")
-                    endif
-                endfor
+                call s:VIMIT_backtrack()
                 let result = s:VIMIT_rep_len(a:string[n:strlen(a:string)-1])
                 if result >= 0
                     let n += result
                 endif
+                if a:string[n+1] == '*'
+                    let n += 1
+                endif
                 let parse_state = "text"
             endif
         else
+            for key in keys(s:vimit_groups)
+                call s:VIMIT_clear_states(key)
+                unlet s:vimit_groups[key]
+            endfor
             call s:VIMIT_reset(a:name)
             return -1
         endif
         let n += 1
     endwhile
+    for key in keys(s:vimit_groups)
+        call s:VIMIT_clear_states(key)
+        unlet s:vimit_groups[key]
+    endfor
     call s:VIMIT_reset(a:name)
     return 1
 endfunction
@@ -317,7 +335,12 @@ function! VIMIT_reg()
     echo "Register to use:"
     let c = nr2char(getchar())
     redraw
-    call s:VIMIT_parse(getreg(c), c)
+    try
+        call s:VIMIT_parse(getreg(c), c)
+    catch
+        call s:VIMIT_clear_states(c)
+        call s:VIMIT_reset(c)
+    endtry
 endfunction
 
 "noremap <silent> <unique> <script> <Plug>VIMIT_reg :set lz<CR>:call <SID>VIMIT_reg()<CR>:set nolz<CR>
