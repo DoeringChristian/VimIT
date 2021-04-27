@@ -20,7 +20,7 @@ solution where you are easily able write your templates on the fly.
 
 After installing it ([guide](#installation)) you can use VimIT as it is.
 To create a template write it any where you want or just copy one from the internet.
-The structure of a template can as follows:
+The structure of a template can be as follows:
 ```c
 #define $regname *((uint32_t *)0x$(regaddr%08x))
 ```
