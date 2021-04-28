@@ -513,6 +513,9 @@ function! s:VIMIT_parse(string, name)
                 let parse_state = "cond"
             elseif char == '$' && a:string[n+1] == ']'
                 call s:VIMIT_insert(s:VIMIT_eval(cond, a:name . "#" . cond_name))
+            elseif char == '$'
+                let cond .= char
+                let parse_state = "cond"
             else
                 let parse_state = "cond_cont"
             endif
